@@ -1,0 +1,11 @@
+# IDE
+*.sublime-project
+*.sublime-workspace
+
+# test
+tests/demo.pb
+
+# temp
+__pycache__
+.cache
+*.egg-info

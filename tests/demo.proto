@@ -1,0 +1,20 @@
+syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
+
+package demo;
+
+message Record {
+  int64 int = 1;
+  float float = 2;
+  repeated int64 rep = 27;
+  Nested nested = 28;
+}
+
+message Collection {
+  repeated Record records = 1;
+}
+
+message Nested {
+  float data = 1;
+  float more = 2;
+}
