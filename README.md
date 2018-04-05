@@ -1,8 +1,10 @@
 # read-protobuf
 
-Import serialized protobuf directly into pandas DataFrame.
+Small library to read serialized protobuf(s) directly into Pandas Dataframe.
 
-This is meant to be a simple shortcut to getting from serialized protobuf bytes / files directly to a dataframe. 
+This is meant to be a simple shortcut to getting from serialized protobuf bytes / files directly to a dataframe.
+
+>Note: This currently only supports basic proto3 features. I have not yet tested it with proto2, though I believe that should work. I plan to expand the utility of this library with time and need.
 
 ## Usage
 

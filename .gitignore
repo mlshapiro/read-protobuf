@@ -10,3 +10,9 @@ tests/demo2.pb
 __pycache__
 .cache
 *.egg-info
+
+# build
+*.pyc
+*.tar.gz
+*.whl
+build/
