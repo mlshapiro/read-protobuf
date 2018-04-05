@@ -91,7 +91,7 @@ def read_protobuf(pb, MessageType, flatten=DEFAULTS['flatten'],
     """Summary
 
     Args:
-        pb (string | bytes): file path to pb file or bytes from pb file
+        pb (string | bytes |list): file path to pb file(s) or bytes from pb file(s). Multiple entries allowed in list.
         MessageType (google.protobuf.message.Message): Message class of pb message
         flatten (bool, optional): flatten all nested objects into a 2-d dataframe. This will also collapse  repeated message containers
         prefix_nested (bool, optional): prefix all flattened objects with parent keys
@@ -101,14 +101,27 @@ def read_protobuf(pb, MessageType, flatten=DEFAULTS['flatten'],
     """
 
     # message parsing
-    if isinstance(pb, str):
-        with open(pb, 'rb') as f:
-            Message = MessageType.FromString(f.read())
+    if not isinstance(pb, list):
+        pb = [pb]
 
-    elif isinstance(pb, bytes):
-        Message = MessageType.FromString(pb)
-    else:
-        raise TypeError('unknown input source for protobuf')
+    raw = bytes()
+    for entry in pb:
+        if isinstance(entry, str):
+            with open(entry, 'rb') as f:
+                raw += f.read()
+
+        elif isinstance(entry, bytes):
+            raw += entry
+
+        else:
+            raise TypeError('unknown input source for protobuf')
+
+    # parse concatenated message
+    Message = MessageType.FromString(raw)
+
+    # check message
+    if not Message.ListFields():
+        raise ValueError('Parsed message is empty')
 
     # instantiate reader
     reader = ProtobufReader(flatten, prefix_nested)

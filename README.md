@@ -1,6 +1,50 @@
 # read-protobuf
 
-Import protobufs directly into pandas dataframe
+Import serialized protobuf directly into pandas DataFrame.
+
+This is meant to be a simple shortcut to getting from serialized protobuf bytes / files directly to a dataframe. 
+
+## Usage
+
+```python
+import demo_pb2                             # compiled protobuf message module 
+from read_protobuf import read_protobuf
+
+MessageType = demo_pb2.MessageType()        # instantiate a new message type
+df = read_protobuf(b'\x00\x00', MessageType)    # create a dataframe from serialized protobuf bytes
+df = read_protobuf([b'\x00\x00', b'x00\x00'] MessageType)    # read multiple protobuf bytes
+
+df = read_protobuf('demo.pb', MessageType)    # use file instead of bytes
+df = read_protobuf(['demo.pb', 'demo2.pb'], MessageType)    # read multiple files
+
+# options
+df = read_protobuf('demo.pb', MessageType, flatten=False)    # don't flatten pb messages
+df = read_protobuf('demo.pb', MessageType, prefix_nested=True)    # prefix nested messages with parent keys (like pandas.io.json.json_normalize)
+```
+
+To compile a protobuf Message class from python, use:
+
+```bash
+$ protoc --python_out="." demo.proto
+```
+
+## Alternatives
+
+### JSON
+
+There are many alternatives to achieving this same goals including converting the message to JSON and then loading in pandas with `pd.read_json`.  
+
+```python
+from google.protobuf.json_format import MessageToJson
+```
+
+In my experience, this package is about twice as fast as converting through json. The process could be greatly improved by using c++ to do the processing.
+
+### protobuf-to-dict
+
+https://github.com/benhodgson/protobuf-to-dict
+
+This library was developed earlier to convert protobufs to JSON via a dict.
 
 ## Develop
 

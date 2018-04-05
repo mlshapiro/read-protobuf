@@ -4,6 +4,7 @@
 
 # test
 tests/demo.pb
+tests/demo2.pb
 
 # temp
 __pycache__
