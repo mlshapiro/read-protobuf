@@ -4,9 +4,19 @@ Small library to read serialized protobuf(s) directly into Pandas Dataframe.
 
 This is meant to be a simple shortcut to getting from serialized protobuf bytes / files directly to a dataframe.
 
->Note: This currently only supports basic proto3 features. I have not yet tested it with proto2, though I believe that should work. I plan to expand the utility of this library with time and need.
+>Note: This currently only supports basic proto3 features for Python 3. I have not yet tested it with proto2, though I believe that should work. I plan to expand the utility of this library with time and need.
+
+## Install
+
+Available via pip:
+
+```bash
+$ pip install read-protobuf
+```
 
 ## Usage
+
+Run the [demo-notebook](tests/demo.ipynb) for an interactive demo.
 
 ```python
 import demo_pb2                             # compiled protobuf message module 
@@ -23,6 +33,7 @@ df = read_protobuf(['demo.pb', 'demo2.pb'], MessageType)    # read multiple file
 df = read_protobuf('demo.pb', MessageType, flatten=False)    # don't flatten pb messages
 df = read_protobuf('demo.pb', MessageType, prefix_nested=True)    # prefix nested messages with parent keys (like pandas.io.json.json_normalize)
 ```
+
 
 To compile a protobuf Message class from python, use:
 

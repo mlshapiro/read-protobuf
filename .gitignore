@@ -5,6 +5,7 @@
 # test
 tests/demo.pb
 tests/demo2.pb
+.ipynb_checkpoints
 
 # temp
 __pycache__
