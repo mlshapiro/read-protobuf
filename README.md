@@ -51,14 +51,13 @@ This library was developed earlier to convert protobufs to JSON via a dict.
 
 #### JSON
 
-There are many alternatives to achieving this same goals including converting the message to JSON and then loading in pandas with `pd.read_json`.  
+There are many alternatives to achieving the same goal including converting the message to JSON and then loading in pandas with `pd.read_json`.  
 
 ```python
 from google.protobuf.json_format import MessageToJson
 ```
 
-In my experience, this package is about twice as fast as converting through json. The process could be greatly improved by using c++ to do the processing.
-
+In my brief tests, this package is about twice as fast as converting through json. The process could be greatly improved by using c++ to do the processing.
 
 ## Develop
 
