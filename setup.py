@@ -9,7 +9,7 @@ with open('README.md', 'r') as f:
 
 setup(
     name='read-protobuf',
-    version='0.1.0',
+    version='0.1.1',
     description='Small library to read serialized protobuf(s) directly into Pandas Dataframe',
     long_description=readme,
     long_description_content_type='text/markdown',
