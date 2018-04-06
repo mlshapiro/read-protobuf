@@ -51,13 +51,13 @@ This library was developed earlier to convert protobufs to JSON via a dict.
 
 #### JSON
 
-There are many alternatives to achieving the same goal including converting the message to JSON and then loading in pandas with `pd.read_json`.  
+The google protobuf library comes with a utility to convert messages to JSON. Then the JSON objects could be loaded into pands via `pd.read_json()`.  
 
 ```python
 from google.protobuf.json_format import MessageToJson
 ```
 
-In my brief tests, this package is about twice as fast as converting through json. The process could be greatly improved by using c++ to do the processing.
+In my brief tests, the `read_protobuf` package is about twice as fast as converting a protobuf to a dataframe using `MessageToJson`. 
 
 ## Develop
 
@@ -78,7 +78,7 @@ $ pip install -r dev-requirements.txt
 Uses `pylint` to lint application.
 
 ```
-$ pylint read-protobuf
+$ pylint read_protobuf
 ```
 
 Configuration options are specified in `.pylintrc`
@@ -89,7 +89,7 @@ Uses `pytest` to run unit tests. From the root of the repository, run:
 
 ```
 $ pytest
-$ pytest -k "TestRead"    # only test the TestRead class
+$ pytest -k "TestRead::test_read_bytes"    # specify test
 ```
 
 Configuration options are specified in `setup.cfg`
