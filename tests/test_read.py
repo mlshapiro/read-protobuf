@@ -171,7 +171,7 @@ class TestRead(object):
 
         Collection = demo_pb2.Collection()
 
-        with pytest.raises(FileNotFoundError):
+        with pytest.raises(IOError):
             read_protobuf('message', Collection)
 
     def test_invalid_input(self):
