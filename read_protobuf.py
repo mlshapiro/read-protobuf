@@ -106,12 +106,22 @@ def read_protobuf(pb, MessageType, flatten=DEFAULTS['flatten'],
 
     raw = bytes()
     for entry in pb:
-        if isinstance(entry, str):
+
+        if isinstance(entry, bytes):
+
+            # python 2 interprets "bytes" as "str"
+            # if the entry can be decoded as ascii, treat as a path
+            try:
+                entry.decode('ascii')
+                with open(entry, 'rb') as f:
+                    raw += f.read()
+            except (UnicodeDecodeError, AttributeError):
+                raw += entry
+
+        elif isinstance(entry, str):
+
             with open(entry, 'rb') as f:
                 raw += f.read()
-
-        elif isinstance(entry, bytes):
-            raw += entry
 
         else:
             raise TypeError('unknown input source for protobuf')

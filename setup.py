@@ -17,7 +17,7 @@ setup(
     url='https://github.com/mlshapiro/read-protobuf.git',
     license='Public Domain',
     keywords=['protobuf', 'pandas'],
-    python_requires='>=3',
+    python_requires='>=2.7',
     install_requires=[
         'pandas>=0.16',
         'protobuf>=3.5'
