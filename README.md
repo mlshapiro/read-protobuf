@@ -4,7 +4,10 @@ Small library to read serialized protobuf(s) directly into Pandas Dataframe.
 
 This is meant to be a simple shortcut to getting from serialized protobuf bytes / files directly to a dataframe.
 
->Note: This currently only supports basic proto3 features for Python 3. I have not yet tested it with proto2, though I believe that should work. I plan to expand the utility of this library with time and need.
+Runs in Python 2.7+ and Python 3
+
+>Note: This currently only supports basic proto3. I have not yet tested it with proto2, though I believe that should work. I plan to expand the utility of this library with time and need.
+
 
 ## Install
 
