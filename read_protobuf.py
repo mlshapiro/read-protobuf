@@ -1,24 +1,18 @@
 """
 read-protobuf
 
-Attributes:
-    DEFAULTS (dict): Default inputs
+Small library to read serialized protobuf(s) directly into Pandas DataFrame
 """
 
 import pandas as pd
 
-DEFAULTS = {
-    'flatten': True,
-    'prefix_nested': False
-}
+DEFAULTS = {"flatten": True, "prefix_nested": False}
 
 
 class ProtobufReader(object):
-    """ ProtobufReader class to handle interpretation"""
+    """ProtobufReader class to handle interpretation"""
 
-    def __init__(self, flatten=DEFAULTS['flatten'],
-                       prefix_nested=DEFAULTS['prefix_nested']):
-
+    def __init__(self, flatten=DEFAULTS["flatten"], prefix_nested=DEFAULTS["prefix_nested"]):
         self.flatten = flatten
         self.prefix_nested = prefix_nested
 
@@ -51,10 +45,8 @@ class ProtobufReader(object):
 
         data = {}  # default to dict
         for field in Message.ListFields():
-
             # repeated nested message
             if field[0].type == field[0].TYPE_MESSAGE and field[0].label == field[0].LABEL_REPEATED:
-
                 # is this the only field in the pb? if so, look at flatten
                 if len(Message.ListFields()) == 1 and self.flatten:
                     data = self.to_array(Message, field[0].name)
@@ -69,7 +61,7 @@ class ProtobufReader(object):
                     nested_dict = self.interpret_message(field[1])
                     for key in nested_dict:
                         if key in data or self.prefix_nested:
-                            data['{}.{}'.format(field[0].name, key)] = nested_dict[key]
+                            data["{}.{}".format(field[0].name, key)] = nested_dict[key]
                         else:
                             data[key] = nested_dict[key]
                 else:
@@ -86,8 +78,9 @@ class ProtobufReader(object):
         return data
 
 
-def read_protobuf(pb, MessageType, flatten=DEFAULTS['flatten'],
-                               prefix_nested=DEFAULTS['prefix_nested']):
+def read_protobuf(
+    pb, MessageType, flatten=DEFAULTS["flatten"], prefix_nested=DEFAULTS["prefix_nested"]
+):
     """Summary
 
     Args:
@@ -106,32 +99,29 @@ def read_protobuf(pb, MessageType, flatten=DEFAULTS['flatten'],
 
     raw = bytes()
     for entry in pb:
-
         if isinstance(entry, bytes):
-
             # python 2 interprets "bytes" as "str"
             # if the entry can be decoded as ascii, treat as a path
             try:
-                entry.decode('ascii')
-                with open(entry, 'rb') as f:
+                entry.decode("ascii")
+                with open(entry, "rb") as f:
                     raw += f.read()
             except (UnicodeDecodeError, AttributeError):
                 raw += entry
 
         elif isinstance(entry, str):
-
-            with open(entry, 'rb') as f:
+            with open(entry, "rb") as f:
                 raw += f.read()
 
         else:
-            raise TypeError('unknown input source for protobuf')
+            raise TypeError("unknown input source for protobuf")
 
     # parse concatenated message
     Message = MessageType.FromString(raw)
 
     # check message
     if not Message.ListFields():
-        raise ValueError('Parsed message is empty')
+        raise ValueError("Parsed message is empty")
 
     # instantiate reader
     reader = ProtobufReader(flatten, prefix_nested)
