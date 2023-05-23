@@ -28,8 +28,8 @@ test: pytest-cov
 build:
 	python -m build
 
-release-test:
+release-test: build
 	twine upload -r testpypi dist/*
 
-release:
+release: build
 	twine upload dist/*
