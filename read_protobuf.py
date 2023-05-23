@@ -84,9 +84,11 @@ def read_protobuf(
     """Summary
 
     Args:
-        pb (string | bytes |list): file path to pb file(s) or bytes from pb file(s). Multiple entries allowed in list.
+        pb (string | bytes |list): File path to pb file(s) or bytes from pb file(s).
+            Multiple entries allowed in list.
         MessageType (google.protobuf.message.Message): Message class of pb message
-        flatten (bool, optional): flatten all nested objects into a 2-d dataframe. This will also collapse  repeated message containers
+        flatten (bool, optional): flatten all nested objects into a 2-d dataframe.
+            This will also collapse  repeated message containers
         prefix_nested (bool, optional): prefix all flattened objects with parent keys
 
     Returns:
