@@ -1,7 +1,3 @@
-"""
-Test util.py methods
-"""
-
 import os
 
 import pandas as pd
@@ -45,7 +41,7 @@ def write_demo(n=100):
     return Collection.SerializeToString()
 
 
-def write_demo_file(name="demo.pb"):
+def write_demo_file(name="demo.pb") -> str:
     """Write demo pb file
 
     Returns:
@@ -62,123 +58,130 @@ def write_demo_file(name="demo.pb"):
     return path
 
 
-class TestRead(object):
-    """Test read-protobuf methods"""
+def test_read_bytes():
+    """test input serialized bytes"""
 
-    def test_read_bytes(self):
-        """test input serialized bytes"""
+    Message = write_demo()
+    Collection = demo_pb2.Collection()
+    df = read_protobuf(Message, Collection)
 
-        Message = write_demo()
-        Collection = demo_pb2.Collection()
-        df = read_protobuf(Message, Collection)
+    assert df is not None and isinstance(df, pd.DataFrame)
 
-        assert df is not None and isinstance(df, pd.DataFrame)
 
-    def test_read_file(self):
-        """test input file path"""
+def test_read_file() -> None:
+    """test input file path"""
 
-        path = write_demo_file()
-        Collection = demo_pb2.Collection()
-        df = read_protobuf(path, Collection)
+    path = write_demo_file()
+    Collection = demo_pb2.Collection()
+    df = read_protobuf(path, Collection)
 
-        assert df is not None and isinstance(df, pd.DataFrame)
+    assert df is not None and isinstance(df, pd.DataFrame)
 
-    def test_defaults(self):
-        """test default inputs"""
 
-        Message = write_demo()
-        Collection = demo_pb2.Collection()
+def test_defaults() -> None:
+    """test default inputs"""
 
-        df = read_protobuf(Message, Collection)
+    Message = write_demo()
+    Collection = demo_pb2.Collection()
 
-        assert "data" in df.columns
+    df = read_protobuf(Message, Collection)
 
-    def test_flatten(self):
-        """test flatten option"""
+    assert "data" in df.columns
 
-        Message = write_demo()
-        Collection = demo_pb2.Collection()
 
-        df = read_protobuf(Message, Collection, flatten=False)
+def test_flatten() -> None:
+    """test flatten option"""
 
-        assert "records" in df.columns and len(df.columns) == 1
+    Message = write_demo()
+    Collection = demo_pb2.Collection()
 
-    def test_prefix(self):
-        """test prefix option"""
+    df = read_protobuf(Message, Collection, flatten=False)
 
-        Message = write_demo()
-        Collection = demo_pb2.Collection()
+    assert "records" in df.columns and len(df.columns) == 1
 
-        df = read_protobuf(Message, Collection, prefix_nested=True)
 
-        assert "nested.data" in df.columns
+def test_prefix() -> None:
+    """test prefix option"""
 
-    def test_multiple_input_bytes(self):
-        """test input multiple bytes"""
+    Message = write_demo()
+    Collection = demo_pb2.Collection()
 
-        Message = write_demo(n=29)
-        Message2 = write_demo(n=5)
+    df = read_protobuf(Message, Collection, prefix_nested=True)
 
-        Collection = demo_pb2.Collection()
+    assert "nested.data" in df.columns
 
-        df = read_protobuf([Message, Message2], Collection)
 
-        assert df is not None and isinstance(df, pd.DataFrame)
+def test_multiple_input_bytes() -> None:
+    """test input multiple bytes"""
 
-    def test_multiple_input_files(self):
-        """test input multiple files"""
+    Message = write_demo(n=29)
+    Message2 = write_demo(n=5)
 
-        path1 = write_demo_file()
-        path2 = write_demo_file("demo2.pb")
+    Collection = demo_pb2.Collection()
 
-        Collection = demo_pb2.Collection()
+    df = read_protobuf([Message, Message2], Collection)
 
-        df = read_protobuf([path1, path2], Collection)
+    assert df is not None and isinstance(df, pd.DataFrame)
 
-        assert df is not None and isinstance(df, pd.DataFrame)
 
-    def test_multiple_input_types(self):
-        """test input multiple files and strings"""
+def test_multiple_input_files() -> None:
+    """test input multiple files"""
 
-        Message = write_demo(n=29)
-        path2 = write_demo_file("demo2.pb")
+    path1 = write_demo_file()
+    path2 = write_demo_file("demo2.pb")
 
-        Collection = demo_pb2.Collection()
+    Collection = demo_pb2.Collection()
 
-        df = read_protobuf([Message, path2], Collection)
+    df = read_protobuf([path1, path2], Collection)
 
-        assert df is not None and isinstance(df, pd.DataFrame)
+    assert df is not None and isinstance(df, pd.DataFrame)
 
-    def test_invalid_pb(self):
-        """test invalid pb class"""
 
-        Message = write_demo()
-        Collection = demo_pb2.Collection()
+def test_multiple_input_types() -> None:
+    """test input multiple files and strings"""
 
-        Record = demo_pb2.Record()
-        Record.int = 1234
-        Record.float = 43.685
-        Message2 = Record.SerializeToString()
+    Message = write_demo(n=29)
+    path2 = write_demo_file("demo2.pb")
 
-        df = read_protobuf([Message, Message2], Collection)
+    Collection = demo_pb2.Collection()
 
-        assert df is not None and isinstance(df, pd.DataFrame)
+    df = read_protobuf([Message, path2], Collection)
 
-        with pytest.raises(ValueError):
-            df = read_protobuf([Message2], Collection)
+    assert df is not None and isinstance(df, pd.DataFrame)
 
-    def test_invalid_input_path(self):
-        """test invalid input filepath"""
 
-        Collection = demo_pb2.Collection()
+def test_invalid_pb() -> None:
+    """test invalid pb class"""
 
-        with pytest.raises(IOError):
-            read_protobuf("message", Collection)
+    Message = write_demo()
+    Collection = demo_pb2.Collection()
 
-    def test_invalid_input(self):
-        """test invalid input pb type"""
+    Record = demo_pb2.Record()
+    Record.int = 1234
+    Record.float = 43.685
+    Message2 = Record.SerializeToString()
 
-        Collection = demo_pb2.Collection()
+    df = read_protobuf([Message, Message2], Collection)
 
-        with pytest.raises(TypeError):
-            read_protobuf(123, Collection)
+    assert df is not None and isinstance(df, pd.DataFrame)
+
+    with pytest.raises(ValueError):
+        df = read_protobuf([Message2], Collection)
+
+
+def test_invalid_input_path() -> None:
+    """test invalid input filepath"""
+
+    Collection = demo_pb2.Collection()
+
+    with pytest.raises(IOError):
+        read_protobuf("message", Collection)
+
+
+def test_invalid_input() -> None:
+    """test invalid input pb type"""
+
+    Collection = demo_pb2.Collection()
+
+    with pytest.raises(TypeError):
+        read_protobuf(123, Collection)

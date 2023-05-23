@@ -4,95 +4,123 @@ read-protobuf
 Small library to read serialized protobuf(s) directly into Pandas DataFrame
 """
 
+from __future__ import annotations
+
+from typing import Any
+
+import google
 import pandas as pd
 
-DEFAULTS = {"flatten": True, "prefix_nested": False}
+DEFAULT_FLATTEN = True
+DEFAULT_PREFIX_NESTED = False
 
 
-class ProtobufReader(object):
-    """ProtobufReader class to handle interpretation"""
+def _to_array(
+    message, flatten: bool, prefix_nested: bool, field: str = None
+) -> list[dict[str, Any]]:
+    """Convert an arbitrary message to an array
 
-    def __init__(self, flatten=DEFAULTS["flatten"], prefix_nested=DEFAULTS["prefix_nested"]):
-        self.flatten = flatten
-        self.prefix_nested = prefix_nested
+    Parameters
+    ----------
+    message : TYPE
+        Description
+    flatten : bool
+        See `read_protobuf`
+    prefix_nested : bool
+        See `read_protobuf`
+    field : str, optional
+        Field within message to convert to array
 
-    def to_array(self, Message, field=None):
-        """Convert an arbitrary message to an array
+    Returns
+    -------
+    list[dict[str, Any]]
+        List of interpreted messages
+    """
+    if field:
+        arr = [_interpret_message(m, flatten, prefix_nested) for m in getattr(message, field)]
+    else:
+        arr = [_interpret_message(message, flatten, prefix_nested)]
 
-        Args:
-            Message (TYPE): Description
-            field (string, optional): field within message to convert to array
+    return arr
 
-        Returns:
-            TYPE: Description
-        """
-        if field:
-            array = [self.interpret_message(m) for m in getattr(Message, field)]
-        else:
-            array = [self.interpret_message(Message)]
 
-        return array
+def _interpret_message(message, flatten: bool, prefix_nested: bool) -> dict[str, Any]:
+    """Interpret a message into a dict or array.
 
-    def interpret_message(self, Message):
-        """Interpret a message into a dict or array
+    Parameters
+    ----------
+    message : TYPE
+        Description
+    flatten : bool
+        See `read_protobuf`
+    prefix_nested : bool
+        See `read_protobuf`
 
-        Args:
-            Message (TYPE): Description
+    Returns
+    -------
+    dict[str, Any]
+    """
 
-        Returns:
-            dict | list: protobuf message interpreted into a list or dict
-        """
+    data = {}  # default to dict
+    for field in message.ListFields():
+        # repeated nested message
+        if field[0].type == field[0].TYPE_MESSAGE and field[0].label == field[0].LABEL_REPEATED:
+            # is this the only field in the pb? if so, look at flatten
+            if len(message.ListFields()) == 1 and flatten:
+                data = _to_array(message, flatten, prefix_nested, field[0].name)
 
-        data = {}  # default to dict
-        for field in Message.ListFields():
-            # repeated nested message
-            if field[0].type == field[0].TYPE_MESSAGE and field[0].label == field[0].LABEL_REPEATED:
-                # is this the only field in the pb? if so, look at flatten
-                if len(Message.ListFields()) == 1 and self.flatten:
-                    data = self.to_array(Message, field[0].name)
-
-                # if there are multiple repeated messages in object, set as keys
-                else:
-                    data[field[0].name] = self.to_array(Message, field[0].name)
-
-            # nested message
-            elif field[0].type == field[0].TYPE_MESSAGE:
-                if self.flatten:
-                    nested_dict = self.interpret_message(field[1])
-                    for key in nested_dict:
-                        if key in data or self.prefix_nested:
-                            data["{}.{}".format(field[0].name, key)] = nested_dict[key]
-                        else:
-                            data[key] = nested_dict[key]
-                else:
-                    data[field[0].name] = self.interpret_message(field[1])
-
-            # repeated scalar
-            elif field[0].label == field[0].LABEL_REPEATED:
-                data[field[0].name] = list(field[1])
-
-            # scalar
+            # if there are multiple repeated messages in object, set as keys
             else:
-                data[field[0].name] = field[1]
+                data[field[0].name] = _to_array(message, flatten, prefix_nested, field[0].name)
 
-        return data
+        # nested message
+        elif field[0].type == field[0].TYPE_MESSAGE:
+            if flatten:
+                nested_dict = _interpret_message(field[1], flatten, prefix_nested)
+                for key in nested_dict:
+                    if key in data or prefix_nested:
+                        data["{}.{}".format(field[0].name, key)] = nested_dict[key]
+                    else:
+                        data[key] = nested_dict[key]
+            else:
+                data[field[0].name] = _interpret_message(field[1], flatten, prefix_nested)
+
+        # repeated scalar
+        elif field[0].label == field[0].LABEL_REPEATED:
+            data[field[0].name] = list(field[1])
+
+        # scalar
+        else:
+            data[field[0].name] = field[1]
+
+    return data
 
 
 def read_protobuf(
-    pb, MessageType, flatten=DEFAULTS["flatten"], prefix_nested=DEFAULTS["prefix_nested"]
-):
-    """Summary
+    pb: str | bytes | list,
+    MessageType: google.protobuf.message.Message,
+    flatten: bool = DEFAULT_FLATTEN,
+    prefix_nested: bool = DEFAULT_PREFIX_NESTED,
+) -> pd.DataFrame:
+    """Read protobuf file(s) or bytes into a Pandas DataFrame.
 
-    Args:
-        pb (string | bytes |list): File path to pb file(s) or bytes from pb file(s).
-            Multiple entries allowed in list.
-        MessageType (google.protobuf.message.Message): Message class of pb message
-        flatten (bool, optional): flatten all nested objects into a 2-d dataframe.
-            This will also collapse  repeated message containers
-        prefix_nested (bool, optional): prefix all flattened objects with parent keys
+    Parameters
+    ----------
+    pb : string | bytes | list
+        File path to pb file(s) or bytes from pb file(s).
+        Multiple entries allowed in list.
+    MessageType : google.protobuf.message.Message
+        Message class of pb message
+    flatten : bool, optional
+        Flatten all nested objects into a 2-d dataframe.
+        This will also collapse repeated message containers
+    prefix_nested : bool, optional
+        Prefix all flattened objects with parent keys
 
-    Returns:
-        DataFrame: pandas dataframe with interpreted pb data
+    Returns
+    -------
+    DataFrame
+        Pandas DataFrame with interpreted pb data
     """
 
     # message parsing
@@ -119,19 +147,14 @@ def read_protobuf(
             raise TypeError("unknown input source for protobuf")
 
     # parse concatenated message
-    Message = MessageType.FromString(raw)
+    message = MessageType.FromString(raw)
 
     # check message
-    if not Message.ListFields():
+    if not message.ListFields():
         raise ValueError("Parsed message is empty")
 
-    # instantiate reader
-    reader = ProtobufReader(flatten, prefix_nested)
-
     # intepret message
-    data = reader.interpret_message(Message)
+    data = _interpret_message(message, flatten, prefix_nested)
 
     # put data into frame
-    df = pd.DataFrame(data)
-
-    return df
+    return pd.DataFrame(data)
