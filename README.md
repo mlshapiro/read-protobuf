@@ -78,8 +78,8 @@ $ pip install -e ".[dev]"
 Uses `black` and `isort` to format files.
 
 ```bash
-$ black read_protobuf.py tests/*.py
-$ isort read_protobuf.py tests/*.py
+$ make black
+$ make isort
 ```
 
 ## Lint
@@ -87,7 +87,7 @@ $ isort read_protobuf.py tests/*.py
 Uses `ruff` to lint application.
 
 ```bash
-$ ruff read_protobuf.py
+$ make ruff
 ```
 
 ## Test
@@ -95,8 +95,10 @@ $ ruff read_protobuf.py
 Uses `pytest` to run unit tests. From the root of the repository, run:
 
 ```bash
-$ pytest
-$ pytest -k "TestRead::test_read_bytes"    # specify test
+$ make pytest
+
+# specify test
+$ pytest -k "TestRead::test_read_bytes"
 ```
 
 ## Code Coverage
@@ -105,7 +107,7 @@ Use `coverage` to monitor code coverage during tests.
 To record coverage while running tests, run:
 
 ```bash
-$ pytest --cov=read_protobuf
+$ make pytest-cov
 ```
 
 ## License
