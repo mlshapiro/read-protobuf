@@ -47,17 +47,18 @@ https://github.com/benhodgson/protobuf-to-dict
 
 This library was developed earlier to convert protobufs to JSON via a dict.
 
-#### MessageToJson
+#### MessageToDict, MessageToJson
 
-The google protobuf library comes with a utility to convert messages to JSON. 
-The JSON objects could be loaded into pandas via `pd.read_json()`.
+The google protobuf library comes with utilities to convert messages to a `dict` or JSON,
+then loaded by Pandas.
 
 ```python
 from google.protobuf.json_format import MessageToJson
+from google.protobuf.json_format import MessageToDict
 ```
 
-In brief tests, the `read_protobuf` package is about twice as fast
-as using `MessageToJson`.
+In brief tests, the `read_protobuf` package is about 2x as fast
+as using `MessageToDict` and 3x as fast as `MessageToJson`.
 
 ## Develop
 

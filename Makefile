@@ -24,3 +24,12 @@ pytest-cov:
 	pytest --cov=read_protobuf
 
 test: pytest-cov
+
+build:
+	python -m build
+
+release-test:
+	twine upload -r testpypi dist/*
+
+release:
+	twine upload dist/*

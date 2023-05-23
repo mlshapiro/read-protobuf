@@ -22,12 +22,14 @@ Repository = "https://github.com/mlshapiro/read-protobuf.git"
 dev = [
     "black>=22",
     "black[jupyter]",
+    "build",
     "ipdb>=0.13",
     "isort>=5.4",
+    "jupyterlab>=4.0",
     "pytest>=6.1",
     "pytest-cov>=2.11",
     "ruff>=0.0.259",
-    "jupyterlab>=4.0"
+    "twine"
 ]
 
 # pytest
