@@ -3,8 +3,10 @@ Test util.py methods
 """
 
 import os
-import pytest
+
 import pandas as pd
+import pytest
+
 from read_protobuf import read_protobuf
 
 from . import demo_pb2
@@ -14,10 +16,10 @@ def write_demo(n=100):
     """Write demo pb string
 
     Args:
-      n (int, optional): number of entries in the demo pb record
+        n (int, optional): number of entries in the demo pb record
 
     Returns:
-      byte-string: serialized pb string
+        byte-string: serialized pb string
     """
 
     Collection = demo_pb2.Collection()
@@ -25,9 +27,9 @@ def write_demo(n=100):
 
     Record.int = 1234
     Record.float = 43.685
-    Record.nested.data = 1.2        #pylint: disable=E1101
-    Record.rep.extend([1])          #pylint: disable=E1101
-    Record.rep.extend([2])          #pylint: disable=E1101
+    Record.nested.data = 1.2  # pylint: disable=E1101
+    Record.rep.extend([1])  # pylint: disable=E1101
+    Record.rep.extend([2])  # pylint: disable=E1101
 
     RecordTwo = demo_pb2.Record()
     RecordTwo.int = 1253135
@@ -36,13 +38,14 @@ def write_demo(n=100):
     # add both types of records at random
     for i in range(n):
         if i % 5 == 0:
-            Collection.records.extend([RecordTwo])  #pylint: disable=E1101
+            Collection.records.extend([RecordTwo])  # pylint: disable=E1101
         else:
-            Collection.records.extend([Record]) #pylint: disable=E1101
+            Collection.records.extend([Record])  # pylint: disable=E1101
 
     return Collection.SerializeToString()
 
-def write_demo_file(name='demo.pb'):
+
+def write_demo_file(name="demo.pb"):
     """Write demo pb file
 
     Returns:
@@ -51,9 +54,9 @@ def write_demo_file(name='demo.pb'):
 
     Message = write_demo()
     pwd = os.path.dirname(os.path.realpath(__file__))
-    path = '{}/{}'.format(pwd, name)
+    path = "{}/{}".format(pwd, name)
 
-    with open(path, 'wb') as f:
+    with open(path, "wb") as f:
         f.write(Message)
 
     return path
@@ -70,7 +73,6 @@ class TestRead(object):
         df = read_protobuf(Message, Collection)
 
         assert df is not None and isinstance(df, pd.DataFrame)
-
 
     def test_read_file(self):
         """test input file path"""
@@ -89,7 +91,7 @@ class TestRead(object):
 
         df = read_protobuf(Message, Collection)
 
-        assert 'data' in df.columns
+        assert "data" in df.columns
 
     def test_flatten(self):
         """test flatten option"""
@@ -99,7 +101,7 @@ class TestRead(object):
 
         df = read_protobuf(Message, Collection, flatten=False)
 
-        assert 'records' in df.columns and len(df.columns) == 1
+        assert "records" in df.columns and len(df.columns) == 1
 
     def test_prefix(self):
         """test prefix option"""
@@ -109,7 +111,7 @@ class TestRead(object):
 
         df = read_protobuf(Message, Collection, prefix_nested=True)
 
-        assert 'nested.data' in df.columns
+        assert "nested.data" in df.columns
 
     def test_multiple_input_bytes(self):
         """test input multiple bytes"""
@@ -127,7 +129,7 @@ class TestRead(object):
         """test input multiple files"""
 
         path1 = write_demo_file()
-        path2 = write_demo_file('demo2.pb')
+        path2 = write_demo_file("demo2.pb")
 
         Collection = demo_pb2.Collection()
 
@@ -135,12 +137,11 @@ class TestRead(object):
 
         assert df is not None and isinstance(df, pd.DataFrame)
 
-
     def test_multiple_input_types(self):
         """test input multiple files and strings"""
 
         Message = write_demo(n=29)
-        path2 = write_demo_file('demo2.pb')
+        path2 = write_demo_file("demo2.pb")
 
         Collection = demo_pb2.Collection()
 
@@ -172,7 +173,7 @@ class TestRead(object):
         Collection = demo_pb2.Collection()
 
         with pytest.raises(IOError):
-            read_protobuf('message', Collection)
+            read_protobuf("message", Collection)
 
     def test_invalid_input(self):
         """test invalid input pb type"""
