@@ -1,0 +1,53 @@
+[project]
+name = "read-protobuf"
+version = "0.2.0"
+authors = [{name = "Marc Shapiro"}]
+description = "Small library to read serialized protobuf(s) directly into Pandas DataFrame"
+keywords = ["pandas", "protobuf"]
+requires-python = ">=3.7"
+license = {text = "MIT"}
+readme = {file = "README.md", content-type = "text/markdown"}
+
+dependencies = [
+    "pandas>=2.0.1",
+    "protobuf>=4.21.1"
+]
+
+[project.urls]
+Issues = "https://github.com/mlshapiro/read-protobuf/issues"
+Repository = "https://github.com/mlshapiro/read-protobuf.git"
+
+# Development dependencies
+[project.optional-dependencies]
+dev = [
+    "black>=22",
+    "black[jupyter]",
+    "isort>=5.4",
+    "pytest>=6.1",
+    "pytest-cov>=2.11",
+    "ruff>=0.0.259",
+    "jupyterlab>=4.0"
+]
+
+# pytest
+# https://docs.pytest.org/en/7.1.x/reference/customize.html
+[tool.pytest.ini_options]
+addopts = "-v --color=yes"
+
+# Python linter
+# https://beta.ruff.rs/docs/
+[tool.ruff]
+line-length = 100
+ignore = ["E402"]
+
+# black code formatting
+# https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
+[tool.black]
+line-length = 100
+preview = true
+
+# isort import formatting
+# https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#isort
+[tool.isort]
+profile = "black"
+line_length = 100

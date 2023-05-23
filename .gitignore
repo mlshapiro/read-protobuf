@@ -1,12 +1,14 @@
 # IDE
 *.sublime-project
 *.sublime-workspace
+.vscode
 
 # test
 tests/demo.pb
 tests/demo2.pb
 .ipynb_checkpoints
 .coverage
+.pytest_cache
 
 # temp
 __pycache__
